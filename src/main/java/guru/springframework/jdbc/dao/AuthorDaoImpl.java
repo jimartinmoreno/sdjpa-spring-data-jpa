@@ -35,6 +35,12 @@ public class AuthorDaoImpl implements AuthorDao {
         return authorRepository.save(author);
     }
 
+    /**
+     * @Transactional The javax.transaction.Transactional annotation provides the application the
+     * ability to declarative control transaction boundaries on CDI managed beans, as well as
+     * classes defined as managed beans by the Jakarta EE specification, at both the class and
+     * method level where method level annotations override those at the class level.
+     */
     @Transactional
     @Override
     public Author updateAuthor(Author author) {

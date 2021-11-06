@@ -3,11 +3,11 @@ package guru.springframework.jdbc;
 import guru.springframework.jdbc.dao.AuthorDao;
 import guru.springframework.jdbc.domain.Author;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @DataJpaTest
 @ComponentScan(basePackages = {"guru.springframework.jdbc.dao"})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class DaoIntegrationTest {
+class DaoIntegrationTest {
     @Autowired
     AuthorDao authorDao;
 
@@ -103,13 +103,10 @@ public class DaoIntegrationTest {
         author.setLastName("t");
 
         Author saved = authorDao.saveNewAuthor(author);
-
         authorDao.deleteAuthorById(saved.getId());
 
-        assertThrows(JpaObjectRetrievalFailureException.class, () -> {
-            Author deleted = authorDao.getById(saved.getId());
-        });
-
+        Executable e = () -> authorDao.getById(saved.getId());
+        assertThrows(JpaObjectRetrievalFailureException.class, e);
     }
 
     @Test
@@ -139,23 +136,17 @@ public class DaoIntegrationTest {
     @Test
     void testGetAuthorByName() {
         Author author = authorDao.findAuthorByName("Craig", "Walls");
-
         assertThat(author).isNotNull();
     }
 
     @Test
     void testGetAuthorByNameNotFound() {
-        assertThrows(EntityNotFoundException.class, () -> {
-            Author author = authorDao.findAuthorByName("foo", "bar");
-        });
+        assertThrows(EntityNotFoundException.class, () -> authorDao.findAuthorByName("foo", "bar"));
     }
 
     @Test
     void testGetAuthor() {
-
         Author author = authorDao.getById(1L);
-
         assertThat(author).isNotNull();
-
     }
 }
